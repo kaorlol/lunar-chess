@@ -5,6 +5,7 @@ use windows::{
 	Win32::Foundation::*, Win32::Graphics::Gdi::*, Win32::System::LibraryLoader::*,
 	Win32::UI::WindowsAndMessaging::*, core::*,
 };
+
 struct ArrowData {
 	start_xy: (i32, i32),
 	end_xy: (i32, i32),

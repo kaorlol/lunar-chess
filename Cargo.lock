@@ -1828,6 +1828,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "opencv",
  "rand 0.9.1",
  "reqwest",
  "tokio",
