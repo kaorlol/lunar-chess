@@ -7,9 +7,11 @@ use xcap::{Monitor, XCapError, XCapResult};
 
 mod draw_arrow;
 
+// TODO: Load the model with https://crates.io/crates/burn
+// TODO: Port the training code to Rust (maybe?) with burn
+
 #[tokio::main]
 async fn main() {
-
 	// let monitor = monitor().unwrap();
 	// let image = monitor.capture_image().unwrap();
 	// image.save("screenshot.png").unwrap();

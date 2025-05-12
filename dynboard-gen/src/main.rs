@@ -40,6 +40,8 @@ const PIECE_THEME: [&str; 33] = [
 	"vintage",
 ];
 
+// TODO: Add opencv to sobel the images
+
 fn random_fen_generation() -> String {
 	let mut rng = rand::rng();
 	let mut fen = String::new();

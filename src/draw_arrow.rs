@@ -1,8 +1,10 @@
+// TODO: Figure out macos https://crates.io/crates/cocoa
+// TODO: Figure out linux https://crates.io/crates/x11
+
 use windows::{
 	Win32::Foundation::*, Win32::Graphics::Gdi::*, Win32::System::LibraryLoader::*,
 	Win32::UI::WindowsAndMessaging::*, core::*,
 };
-
 struct ArrowData {
 	start_xy: (i32, i32),
 	end_xy: (i32, i32),
