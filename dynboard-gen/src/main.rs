@@ -1,7 +1,7 @@
 use anyhow::{Context as _, Result};
 use clap::Parser;
 use opencv::{
-	core::{self, AlgorithmHint::ALGO_HINT_DEFAULT, BORDER_DEFAULT, CV_8U, CV_64F, Size},
+	core::{self, AlgorithmHint::ALGO_HINT_DEFAULT, CV_64F, Size},
 	imgcodecs, imgproc,
 	prelude::*,
 };
@@ -44,8 +44,6 @@ const PIECE_THEME: [&str; 33] = [
 	"tournament",
 	"vintage",
 ];
-
-// TODO: Add opencv to sobel the images
 
 fn random_fen_generation() -> String {
 	let mut rng = rand::rng();
