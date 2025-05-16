@@ -1,5 +1,5 @@
 use opencv::{
-	core::{self, BORDER_DEFAULT, CV_8U, CV_64F, Size},
+	core::{self, AlgorithmHint::ALGO_HINT_DEFAULT, BORDER_DEFAULT, CV_8U, CV_64F, Size},
 	imgproc,
 	prelude::*,
 };
@@ -7,8 +7,7 @@ use xcap::{Monitor, XCapError, XCapResult};
 
 mod draw_arrow;
 
-// TODO: Load the model with https://crates.io/crates/burn
-// TODO: Port the training code to Rust (maybe?) with burn
+// TODO: https://github.com/pykeio/ort/blob/main/examples/yolov8/yolov8.rs
 
 #[tokio::main]
 async fn main() {
@@ -49,13 +48,20 @@ fn monitor() -> XCapResult<Monitor> {
 fn sobel(input_image_mat: &Mat) -> Result<Mat, opencv::Error> {
 	let mut gray_image = Mat::default();
 	if input_image_mat.channels() == 3 {
-		imgproc::cvt_color(input_image_mat, &mut gray_image, imgproc::COLOR_BGR2GRAY, 0)?;
+		imgproc::cvt_color(
+			input_image_mat,
+			&mut gray_image,
+			imgproc::COLOR_BGR2GRAY,
+			0,
+			ALGO_HINT_DEFAULT,
+		)?;
 	} else if input_image_mat.channels() == 4 {
 		imgproc::cvt_color(
 			input_image_mat,
 			&mut gray_image,
 			imgproc::COLOR_BGRA2GRAY,
 			0,
+			ALGO_HINT_DEFAULT,
 		)?;
 	} else {
 		gray_image = input_image_mat.clone();
@@ -70,6 +76,7 @@ fn sobel(input_image_mat: &Mat) -> Result<Mat, opencv::Error> {
 		0.0,
 		0.0,
 		core::BORDER_DEFAULT,
+		ALGO_HINT_DEFAULT,
 	)?;
 
 	let mut grad_x = Mat::default();

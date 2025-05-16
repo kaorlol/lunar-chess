@@ -1,8 +1,8 @@
 use anyhow::{Context as _, Result};
 use clap::Parser;
 use opencv::{
-	core::{self, BORDER_DEFAULT, CV_8U, CV_64F, Size},
-	imgproc,
+	core::{self, AlgorithmHint::ALGO_HINT_DEFAULT, BORDER_DEFAULT, CV_8U, CV_64F, Size},
+	imgcodecs, imgproc,
 	prelude::*,
 };
 use rand::{Rng, seq::IndexedRandom as _};
@@ -99,7 +99,10 @@ async fn generate_dynboard(save_to: String) -> Result<()> {
 	if status.is_success() {
 		let bytes = response.bytes().await?;
 		let name = format!("{save_to}/{piece_theme}-{}.png", fen.replace("/", "_"));
-		std::fs::write(name, &bytes)?;
+
+		let image = imgcodecs::imdecode(&bytes.as_ref(), imgcodecs::IMREAD_UNCHANGED)?;
+		let sobel_image = sobel(&image)?;
+		imgcodecs::imwrite(&name, &sobel_image, &core::Vector::<i32>::new())?;
 	}
 
 	Ok(())
@@ -118,44 +121,48 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
 	let args = Args::parse();
 	let save_to = args.save_to;
 	let count = args.count;
-	std::fs::create_dir_all(&save_to).unwrap_or_else(|_| {
-		eprintln!("Failed to create directory: {save_to}");
-		std::process::exit(1);
-	});
+	std::fs::create_dir_all(&save_to)
+		.with_context(|| format!("Failed to create directory: {save_to}"))?;
 
 	let start = Instant::now();
 	let mut tasks = Vec::new();
 	for _ in 0..count {
 		let save_to = save_to.clone();
 		tasks.push(tokio::spawn(async {
-			if let Err(e) = generate_dynboard(save_to).await {
-				eprintln!("Error generating dynboard: {e}");
-			}
+			generate_dynboard(save_to)
+				.await
+				.with_context(|| "Failed to generate dynboard")
 		}));
 	}
 	for task in tasks {
-		if let Err(e) = task.await {
-			eprintln!("Error in task: {e}");
-		}
+		task.await??;
 	}
 	let duration = start.elapsed();
-	eprintln!("Generated {count} dynboards in {}s", duration.as_secs_f32());
+	println!("Generated {count} dynboards in {}s", duration.as_secs_f32());
+	Ok(())
 }
 
 fn sobel(input_image_mat: &Mat) -> Result<Mat, opencv::Error> {
 	let mut gray_image = Mat::default();
 	if input_image_mat.channels() == 3 {
-		imgproc::cvt_color(input_image_mat, &mut gray_image, imgproc::COLOR_BGR2GRAY, 0)?;
+		imgproc::cvt_color(
+			input_image_mat,
+			&mut gray_image,
+			imgproc::COLOR_BGR2GRAY,
+			0,
+			ALGO_HINT_DEFAULT,
+		)?;
 	} else if input_image_mat.channels() == 4 {
 		imgproc::cvt_color(
 			input_image_mat,
 			&mut gray_image,
 			imgproc::COLOR_BGRA2GRAY,
 			0,
+			ALGO_HINT_DEFAULT,
 		)?;
 	} else {
 		gray_image = input_image_mat.clone();
@@ -170,6 +177,7 @@ fn sobel(input_image_mat: &Mat) -> Result<Mat, opencv::Error> {
 		0.0,
 		0.0,
 		core::BORDER_DEFAULT,
+		ALGO_HINT_DEFAULT,
 	)?;
 
 	let mut grad_x = Mat::default();
