@@ -1,7 +1,6 @@
 // TODO: Figure out macos https://crates.io/crates/cocoa
 // TODO: Figure out linux https://crates.io/crates/x11
 
-#[cfg(any(target_os = "windows"))]
 use windows::{
 	Win32::Foundation::*, Win32::Graphics::Gdi::*, Win32::System::LibraryLoader::*,
 	Win32::UI::WindowsAndMessaging::*, core::*,
@@ -12,7 +11,6 @@ struct ArrowData {
 	end_xy: (i32, i32),
 }
 
-#[cfg(any(target_os = "windows"))]
 pub fn draw(start_xy: (i32, i32), end_xy: (i32, i32)) -> Result<()> {
 	unsafe {
 		let instance = GetModuleHandleW(None)?;
@@ -61,7 +59,6 @@ pub fn draw(start_xy: (i32, i32), end_xy: (i32, i32)) -> Result<()> {
 	Ok(())
 }
 
-#[cfg(any(target_os = "windows"))]
 extern "system" fn wndproc(hwnd: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
 	unsafe {
 		match message {
@@ -101,7 +98,6 @@ extern "system" fn wndproc(hwnd: HWND, message: u32, wparam: WPARAM, lparam: LPA
 	}
 }
 
-#[cfg(any(target_os = "windows"))]
 fn draw_arrow(hdc: HDC, start_xy: (i32, i32), end_xy: (i32, i32)) {
 	let body_pen = unsafe { CreatePen(PS_SOLID, 5, COLORREF(0x00FF00)) };
 	let head_pen = unsafe { CreatePen(PS_SOLID, 5, COLORREF(0x00FF00)) };
