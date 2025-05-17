@@ -3,10 +3,12 @@ name = "dynboard-gen"
 version = "0.1.0"
 edition = "2024"
 
+[target.'cfg(windows)'.dependencies]
+opencv = "0.94.4"
+
 [dependencies]
 anyhow = "1.0.98"
 clap = { version = "4.5.37", features = ["derive"] }
-opencv = "0.94.4"
 rand = "0.9.1"
 reqwest = "0.12.15"
 tokio = { version = "1.45.0", features = ["macros", "rt-multi-thread"] }
