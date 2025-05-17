@@ -1,3 +1,4 @@
+use anyhow::Result;
 use opencv::{
 	core::{self, AlgorithmHint::ALGO_HINT_DEFAULT, BORDER_DEFAULT, CV_8U, CV_64F, Size},
 	imgproc,
@@ -6,11 +7,25 @@ use opencv::{
 use xcap::{Monitor, XCapError, XCapResult};
 
 mod draw_arrow;
+mod stockfish;
 
 // TODO: https://github.com/pykeio/ort/blob/main/examples/yolov8/yolov8.rs
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+	let mut stockfish = stockfish::Stockfish::new(
+		r"C:\Users\root\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe",
+	)
+	.await?;
+
+	stockfish
+		.set_position("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
+		.await?;
+	let best_move = stockfish.get_best_move().await?;
+	println!("Best move: {:?}", best_move);
+
+	Ok(())
+
 	// let monitor = monitor().unwrap();
 	// let image = monitor.capture_image().unwrap();
 	// image.save("screenshot.png").unwrap();
